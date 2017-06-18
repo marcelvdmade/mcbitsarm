@@ -21,5 +21,5 @@ $(TARGET): $(OBJECTS)
 
 clean:
 	-rm -f *.o
-	-rm -f *.txt
+	#-rm -f output/*.txt #Linux gets segmentation error, so don't remove pre-generated output yet
 	-rm -f $(TARGET)

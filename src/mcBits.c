@@ -9,46 +9,40 @@
 
 int main()
 {
-    //#define CRYPTO_SECRETKEYBYTES 5984 bytes      = ~16 Kbytes
-    //#define CRYPTO_PUBLICKEYBYTES 311736 bytes    = ~780Kbytes
+    //#define CRYPTO_SECRETKEYBYTES 5984 bytes      = ~27 Kbytes
+    //#define CRYPTO_PUBLICKEYBYTES 311736 bytes    = ~1400Kbytes
     //(1024K flash, 128K RAM)
 
-/*  Flash Memory sector locations
-    #define ADDR_FLASH_SECTOR_0     ((uint32_t)0x08000000) /* Base @ of Sector 0, 16 Kbytes
-    #define ADDR_FLASH_SECTOR_1     ((uint32_t)0x08004000) /* Base @ of Sector 1, 16 Kbytes
-    #define ADDR_FLASH_SECTOR_2     ((uint32_t)0x08008000) /* Base @ of Sector 2, 16 Kbytes
-    #define ADDR_FLASH_SECTOR_3     ((uint32_t)0x0800C000) /* Base @ of Sector 3, 16 Kbytes
-    #define ADDR_FLASH_SECTOR_4     ((uint32_t)0x08010000) /* Base @ of Sector 4, 64 Kbytes
-    #define ADDR_FLASH_SECTOR_5     ((uint32_t)0x08020000) /* Base @ of Sector 5, 128 Kbytes
-    #define ADDR_FLASH_SECTOR_6     ((uint32_t)0x08040000) /* Base @ of Sector 6, 128 Kbytes
-    #define ADDR_FLASH_SECTOR_7     ((uint32_t)0x08060000) /* Base @ of Sector 7, 128 Kbytes
-    #define ADDR_FLASH_SECTOR_8     ((uint32_t)0x08080000) /* Base @ of Sector 8, 128 Kbytes
-    #define ADDR_FLASH_SECTOR_9     ((uint32_t)0x080A0000) /* Base @ of Sector 9, 128 Kbytes
-    #define ADDR_FLASH_SECTOR_10    ((uint32_t)0x080C0000) /* Base @ of Sector 10, 128 Kbytes
-    #define ADDR_FLASH_SECTOR_11    ((uint32_t)0x080E0000) /* Base @ of Sector 11, 128 Kbytes
+    //Set some text to encrypt, 2048 bytes following the paper
+    char * m = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur malesuada aliquam tortor nec ornare. Donec eu dignissim ipsum. Etiam dictum rhoncus iaculis. Maecenas faucibus nunc at libero dapibus, quis malesuada nisl ultrices. Aliquam consequat enim nec massa lobortis, a dapibus sapien tempor. Nullam neque dui, pellentesque non sem id, mattis facilisis elit. Nulla cursus sodales odio, ac convallis turpis hendrerit luctus. Suspendisse potenti. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nullam ornare erat porttitor nisi maximus, eu accumsan enim laoreet. Sed malesuada, ante non consectetur maximus, erat libero cursus velit, ut suscipit libero lacus quis felis.Nunc maximus aliquam lorem eget sollicitudin. Cras at arcu fermentum, sagittis sem sit amet, luctus nibh. Morbi porta, turpis sit amet aliquet tempor, felis nibh tempor quam, eu pellentesque nibh sem ac libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nunc fermentum porta lectus vel pharetra. Donec vestibulum porta dolor, a viverra neque molestie at. Integer ut blandit erat. Maecenas sodales vestibulum massa, ac bibendum nibh. Curabitur at dolor ultricies urna mollis efficitur sed ac lorem. In aliquam viverra pellentesque.Integer quis neque consequat, tempor lectus lobortis, tincidunt neque. Etiam a viverra arcu. Proin consectetur varius vehicula. Morbi non faucibus lectus. Etiam rutrum interdum odio non feugiat. In hac habitasse platea dictumst. Donec sodales libero et magna malesuada dignissim. Nunc placerat iaculis velit, et imperdiet mi vestibulum a. Praesent sit amet nunc vel lacus euismod molestie quis eget mauris. Praesent eget justo feugiat, sagittis turpis vel, mattis velit. Sed luctus libero et urna iaculis maximus. Aliquam convallis, massa ut facilisis placerat, tellus libero luctus massa, eu dictum ex leo venenatis purus. Sed condimentum, lectus ut viverra sagittis, dolor ligula volutpat nisi, at dictum elit eros eget neque. Phasellus turpis duis.";
+    unsigned long long mlen = strlen(m);
+    char * c;
+    unsigned long long * clen;
 
-    #define VoltageRange_1        ((uint8_t)0x00)  /*!< Device operating range: 1.8V to 2.1V
-    #define VoltageRange_2        ((uint8_t)0x01)  /*!<Device operating range: 2.1V to 2.7V
-    #define VoltageRange_3        ((uint8_t)0x02)  /*!<Device operating range: 2.7V to 3.6V
-    #define VoltageRange_4        ((uint8_t)0x03)  /*!<Device operating range: 2.7V to 3.6V +   External Vpp
+    //Receive key and cipherText from host-side
+    receiveKeys();
 
-*/
-    //Init keys
-    unsigned char p_k[CRYPTO_PUBLICKEYBYTES];
-    unsigned char s_k[CRYPTO_SECRETKEYBYTES];
-    unsigned char*pk = p_k;
-    unsigned char*sk = s_k;
+    //Init cycle count
+    clock_setup();
+    gpio_setup();
+    usart_setup(115200);
 
-    //Generate keys
-    crypto_encrypt_keypair(pk, sk);
-    receive_keys();
+    SCS_DEMCR |= SCS_DEMCR_TRCENA;
+    DWT_CYCCNT = 0;
+    DWT_CTRL |= DWT_CTRL_CYCCNTENA;
 
-    //printf("pkey is: %d\n", *pk);
-    //printf("skey is: %d\n", *sk); 
+    unsigned int oldcount = DWT_CYCCNT;
 
-    //Store keys in flash
-    storeKeys(pk, sk);
+    //Decrypt
+    //TODO
 
+
+    //Measure cycles
+    unsigned int newcount = DWT_CYCCNT-oldcount;
+    sprintf((char *)output, "Cost: %d", newcount);
+    send_USART_str(output);
+    //Send decrypted message to hostside
+    
     return 0;
 }
 
@@ -74,45 +68,13 @@ void receiveKeys()
         FLASH_ProgramByte(SECRET_KEY_ADDRESS + i, x);
     }
 
-    //receive pKey
-    for (i = 0; i < CRYPTO_PUBLICKEYBYTES; i = i + 1;)
+    //receive cipherText
+    for (i = 0; i < 2048; i = i + 1;)
     {
         recv_USART_bytes(&x, 1);
-        FLASH_ProgramByte(PUBLIC_KEY_ADDRESS + i, x);
+        FLASH_ProgramByte(SECRET_KEY_ADDRESS + i, x);
     }
-    
+
+  
     FLASH_Lock();
-}
-
-//Clear sectors with keys, and flags
-void clearFlash()
-{
-    FLASH_Unlock();
-    FLASH_ClearFlag( FLASH_FLAG_EOP | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-    FLASH_EraseSector(FLASH_Sector_0, VoltageRange_3);
-    FLASH_EraseSector(FLASH_Sector_6, VoltageRange_3);
-    FLASH_EraseSector(FLASH_Sector_7, VoltageRange_3);
-    FLASH_EraseSector(FLASH_Sector_8, VoltageRange_3);
-    FLASH_EraseSector(FLASH_Sector_9, VoltageRange_3);
-    FLASH_EraseSector(FLASH_Sector_10, VoltageRange_3);
-    FLASH_Lock();
-}
-
-
-void retreivePkey(unsigned char* key)
-{
-    int i;
-    for (i = 0; i < CRYPTO_PUBLICKEYBYTES; i = i + 1;)
-    {
-        key[i]= *(int16_t *)(PUBLIC_KEY_ADDRESS + i);
-    }
-}
-
-void retreiveSkey(unsigned char* key, int length)
-{
-    int i;
-    for (i = 0; i < CRYPTO_SECRETKEYBYTES; i = i + 1;)
-    {
-        key[i]= *(int16_t *)(SECRET_KEY_ADDRESS + i);
-    }
 }
