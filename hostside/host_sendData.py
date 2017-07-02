@@ -14,27 +14,28 @@ o_file_path = os.path.join(script_dir, rel_o_path)
 
 dev = serial.Serial("/dev/ttyUSB0", 115200)
 
-#wait for first contact from the device
+#A: wait for first contact from the device
 print("> Waiting for signal", file=sys.stderr)
 dev.read()
 
-#read secret key and send it
+#B: read secret key and send it line by line
 print("> Writing secret key..", file=sys.stderr)
 s_file = open(sKey_file_path, "r")
 for line in s_file: 
     dev.write(line.encode('utf-8'))
     
-#read cipher and send it
-print("> Writing cipher..", file=sys.stderr)
+#C: read cipherText and send it
+print("> Writing cipherText..", file=sys.stderr)
 s_file = open(c_file_path, "r")
 for line in s_file: 
     dev.write(line.encode('utf-8'))
     
-#receive cycle count
+#D: receive cycle count
 print("> Cycle count:", file=sys.stderr)
 
 #try to write output to a file as well
 o_file = open(o_file_path,"w") 
+
 while True:
     x = dev.read()
     sys.stdout.buffer.write(x)
