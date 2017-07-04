@@ -5,9 +5,10 @@ ARCH_FLAGS = -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
 DEFINES    = -DSTM32F4
 
 ###################################################
-OBJS = system_stm32f4xx.o stm32f4_wrapper.o
 
-all: libcm3 mcBits.bin cyclecount.bin
+OBJS = $(patsubst %.c, %.o, $(wildcard *.c)) 
+
+all: libcm3 mcBits.bin
 
 ###################################################
 
@@ -18,33 +19,21 @@ OBJCOPY	= $(PREFIX)-objcopy
 OBJDUMP	= $(PREFIX)-objdump
 GDB		= $(PREFIX)-gdb
 OPENCM3_DIR = ../libopencm3
+HEADERS_DIR = ../inc
 
-CFLAGS += -g -O3 -Wall -T$(LDSCRIPT) \
-          -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork \
-          -mfloat-abi=hard -mfpu=fpv4-sp-d16 \
-          -Wextra -Wimplicit-function-declaration \
-          -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes \
-          -Wundef -Wshadow \
-          -I$(OPENCM3_DIR)/include \
-          -fno-common $(ARCH_FLAGS) -MD $(DEFINES) \
-          -Iinc -Ilib -Ilib/inc \
-          -Ilib/inc/core -Ilib/inc/peripherals 
-
-LDFLAGS	+= --static -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group \
+CFLAGS		+= -O3 \
+		   -Wall -Wextra -Wimplicit-function-declaration \
+		   -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes \
+		   -Wundef -Wshadow \
+		   -I$(OPENCM3_DIR)/include \
+		   -I$(HEADERS_DIR) \
+		   -fno-common $(ARCH_FLAGS) -MD $(DEFINES)
+LDFLAGS		+= --static -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group \
 		   -T$(LDSCRIPT) -nostartfiles -Wl,--gc-sections,--print-gc-sections \
 		   $(ARCH_FLAGS) \
 		   -L$(OPENCM3_DIR)/lib
 
 ###################################################
-#check all sub dirs
-vpath %.c src
-vpath %.h inc
-vpath %.data inc
-VPATH = lib
-
-###################################################
-
-.PHONY: libcm3 mcBits.bin cyclecount.bin
 
 libcm3:
 	@if [ ! "`ls -A $(OPENCM3_DIR)`" ] ; then \
@@ -60,14 +49,13 @@ libcm3:
 	make -C $(OPENCM3_DIR)
 
 %.bin: %.elf
-	$(OBJCOPY) -O binary $(*).elf $(*).bin
+	$(OBJCOPY) -Obinary $(*).elf $(*).bin
 
 %.elf: %.o $(OBJS) $(LDSCRIPT)
-	$(LD) -o $(*).elf $(*).o $(OBJS) $(LDFLAGS) -l$(LIBNAME)
+	$(LD) -o $(*).elf $(OBJS) $(LDFLAGS) -l$(LIBNAME)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
-	$(CC) $(CFLAGS) $^ -o $@ -L lib -l stm32f4
 
 clean:
 	find . -name \*.o -type f -exec rm -f {} \;

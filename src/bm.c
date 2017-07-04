@@ -8,7 +8,7 @@
 
 typedef uint16_t gf;
 
-void into_vec(uint64_t *out, gf in)
+static void into_vec(uint64_t *out, gf in)
 {
 	int i;
 
@@ -19,7 +19,7 @@ void into_vec(uint64_t *out, gf in)
 	}
 }
 
-gf vec_reduce(uint64_t *prod)
+static gf vec_reduce(uint64_t *prod)
 {
 	int i;
 
@@ -44,7 +44,7 @@ gf vec_reduce(uint64_t *prod)
 	return ret;
 }
 
-uint64_t mask_nonzero_64bit(gf a)
+static uint64_t mask_nonzero_64bit(gf a)
 {
 	uint64_t ret = a;
 
@@ -55,7 +55,7 @@ uint64_t mask_nonzero_64bit(gf a)
 	return ret;
 }
 
-uint64_t mask_leq_64bit(uint16_t a, uint16_t b)
+static uint64_t mask_leq_64bit(uint16_t a, uint16_t b)
 {
 	uint64_t a_tmp = a;
 	uint64_t b_tmp = b;
@@ -67,7 +67,7 @@ uint64_t mask_leq_64bit(uint16_t a, uint16_t b)
 	return ret;
 }
 
-void vec_cmov(uint64_t *out, uint64_t *in, uint64_t mask)
+static void vec_cmov(uint64_t *out, uint64_t *in, uint64_t mask)
 {
 	int i;
 

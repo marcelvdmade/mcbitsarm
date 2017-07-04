@@ -1,4 +1,5 @@
-#include "poly1315_auth.h"
+#include "poly1305_auth.h"
+#include "poly1305_verify.h"
 
 int crypto_verify(const unsigned char *x,const unsigned char *y)
 {
@@ -26,7 +27,7 @@ int crypto_verify(const unsigned char *x,const unsigned char *y)
 int crypto_onetimeauth_verify(const unsigned char *h,const unsigned char *in,unsigned long long inlen,const unsigned char *k)
 {
   unsigned char correct[16];
-  crypto_onetimeauth(correct,in,inlen,k);//TODO get this func from Supercop
+  crypto_onetimeauth(correct,in,inlen,k);
   return crypto_verify(h,correct);
 }
 

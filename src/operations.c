@@ -1,7 +1,8 @@
+#include "operations.h"
 #include "keccack1024.h"
 #include "salsa.h"
-#include "poly1315_auth.h"
-#include "poly1315_verify.h"
+#include "poly1305_auth.h"
+#include "poly1305_verify.h"
 
 #include "sk_gen.h"
 #include "pk_gen.h"

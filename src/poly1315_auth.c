@@ -4,8 +4,9 @@ D. J. Bernstein
 Public domain.
 */
 
+#include "poly1305_auth.h"
 
-void add(unsigned int h[17],const unsigned int c[17])
+static void add(unsigned int h[17],const unsigned int c[17])
 {
   unsigned int j;
   unsigned int u;
@@ -13,7 +14,7 @@ void add(unsigned int h[17],const unsigned int c[17])
   for (j = 0;j < 17;++j) { u += h[j] + c[j]; h[j] = u & 255; u >>= 8; }
 }
 
-void squeeze(unsigned int h[17])
+static void squeeze(unsigned int h[17])
 {
   unsigned int j;
   unsigned int u;
@@ -29,7 +30,7 @@ static const unsigned int minusp[17] = {
   5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 252
 } ;
 
-void freeze(unsigned int h[17])
+static void freeze(unsigned int h[17])
 {
   unsigned int horig[17];
   unsigned int j;
@@ -40,7 +41,7 @@ void freeze(unsigned int h[17])
   for (j = 0;j < 17;++j) h[j] ^= negative & (horig[j] ^ h[j]);
 }
 
-void mulmod(unsigned int h[17],const unsigned int r[17])
+static void mulmod(unsigned int h[17],const unsigned int r[17])
 {
   unsigned int hr[17];
   unsigned int i;

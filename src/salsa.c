@@ -47,7 +47,7 @@ int crypto_stream_xor(
   unsigned char in[16];
   unsigned char block[64];
   unsigned char kcopy[32];
-  int i;
+  unsigned long long i;
   unsigned int u;
 
   if (!mlen) return 0;
@@ -88,7 +88,7 @@ int crypto_stream(
   unsigned char in[16];
   unsigned char block[64];
   unsigned char kcopy[32];
-  int i;
+  unsigned long long i;
   unsigned int u;
 
   if (!clen) return 0;

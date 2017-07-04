@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
-void gen_e(unsigned char *e)
+static void gen_e(unsigned char *e)
 {
 	int i, j, eq;
 

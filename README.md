@@ -1,15 +1,15 @@
 ## MCBits on STM32f407
 
-A master thesis project
+A master thesis project from Marcel
 
 ### File structure
 
 *hostside/ contains Python scripts to communicate with the board.
 *inc/ contains the header and data files of MCBits
-*lib/ contains the Cortex M4 libraries.
-*libopencm3/ contains libraries to communicate with the board.
+*lib/ contains the Cortex M4 libraries
+*libopencm3/ contains firmware libraries
 *src/ contains the source files of MCBits and the makefile
-*keygen/ contains a project and its own Makefile, to generate a keypair and write them to a file
+*keygen/ contains a project and its own Makefile, to generate and write a keypair to a file
 
 ### Installation
 
@@ -21,7 +21,7 @@ Binaries can be compiled by calling e.g. `make mcBits.bin`. Binaries can then be
 
 The host-side Python code requires the [pyserial](https://github.com/pyserial/pyserial) module. Your package repository might offer `python-serial` or `python-pyserial` directly (as of writing, this is the case for Ubuntu, Debian and Arch). Alternatively, this can be easily installed from PyPA by calling `pip install pyserial` (or `pip3`, depending on your system). If you do not have `pip` installed yet, you can typically find it as `python3-pip` using your package manager.
 
-You can use make keygen to generate the keygen executable in the keygen subdirectory. make mcBits to build the project. First run keygen to generate two files with the keys. Then you can use the host-side script to send the keys directly to the device, which will be stored byte by byte into flash memory.
+You can use make keygen to generate the keygen executable in the keygen subdirectory. make mcBits to build the project, or in the src/ folder, run make mcBits.bin. First run keygen executable to generate two files with the key in them. Then you can use the host-side script to send the keys directly to the device.
 
 ### Troubleshooting
 
