@@ -5,10 +5,15 @@ A master thesis project from Marcel
 ### File structure
 
 *hostside/ contains Python scripts to communicate with the board.
+
 *inc/ contains the header and data files of MCBits
+
 *lib/ contains the Cortex M4 libraries
+
 *libopencm3/ contains firmware libraries
+
 *src/ contains the source files of MCBits and the makefile
+
 *keygen/ contains a project and its own Makefile, to generate and write a keypair to a file
 
 ### Installation
