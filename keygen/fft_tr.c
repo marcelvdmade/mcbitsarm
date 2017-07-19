@@ -7,7 +7,7 @@
 
 #define vec_add(z, x, y) for (b = 0; b < GFBITS; b++) { z[b] = x[b]^y[b]; }
 
-void radix_conversions_tr(uint64_t in[][ GFBITS ])
+static void radix_conversions_tr(uint64_t in[][ GFBITS ])
 {
 	int i, j, k;
 
@@ -54,7 +54,7 @@ void radix_conversions_tr(uint64_t in[][ GFBITS ])
 	}
 }
 
-void butterflies_tr(uint64_t out[][ GFBITS ], uint64_t in[][ GFBITS ])
+static void butterflies_tr(uint64_t out[][ GFBITS ], uint64_t in[][ GFBITS ])
 {
 	int i, j, k, s, b;
 

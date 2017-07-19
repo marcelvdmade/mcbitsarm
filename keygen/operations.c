@@ -13,7 +13,7 @@
 /**
 The main encryption function
 **/
-int crypto_encrypt(
+int mcBits_encrypt(
        unsigned char *c,unsigned long long *clen,
        const unsigned char *m,unsigned long long mlen,
        const unsigned char *pk
@@ -30,9 +30,9 @@ int crypto_encrypt(
 
 	encrypt(c, e, pk);
 
-	crypto_hash(key, e, sizeof(e));
-	crypto_stream_xor(ct, m, mlen, nonce, key);
-	crypto_onetimeauth(tag, ct, mlen, key + 32);
+	keccack_1024_hash(key, e, sizeof(e));
+	salsa20_xor(ct, m, mlen, nonce, key);
+	poly1315_auth(tag, ct, mlen, key + 32);
 
 	*clen = SYND_BYTES + mlen + 16;
 
@@ -45,7 +45,7 @@ int crypto_encrypt(
 /**
 The main decryption function
 **/
-int crypto_encrypt_open(
+int mcBits_decrypt(
        unsigned char *m,unsigned long long *mlen,
        const unsigned char *c,unsigned long long clen,
        const unsigned char *sk
@@ -69,10 +69,10 @@ int crypto_encrypt_open(
 
 	ret_decrypt = decrypt(e, sk, c);
 
-	crypto_hash(key, e, sizeof(e));
+	keccack_1024_hash(key, e, sizeof(e));
 
-	ret_verify = crypto_onetimeauth_verify(tag, ct, *mlen, key + 32);
-	crypto_stream_xor(m, ct, *mlen, nonce, key);
+	ret_verify = poly1315_auth_verify(tag, ct, *mlen, key + 32);
+	salsa20_xor(m, ct, *mlen, nonce, key);
 
 	ret = ret_verify | ret_decrypt;
 
@@ -85,7 +85,7 @@ int crypto_encrypt_open(
 /**
 Generate key pair
 **/
-int crypto_encrypt_keypair
+int mcBits_generate_keypair
 (
        unsigned char *pk,
        unsigned char *sk

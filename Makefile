@@ -7,7 +7,7 @@ OPENCM3_DIR = libopencm3
 all: lib mcBits keygen
 
 mcBits:
-	make -C $(SRC_DIR)
+	make -C $(SRC_DIR) mcBits.bin
 keygen:
 	make -C $(KG_DIR)
 lib:
@@ -26,3 +26,9 @@ lib:
 clean:
 	make -C $(SRC_DIR) clean
 	make -C $(KG_DIR) clean
+	-rm -f output/cipher_hex.txt
+	-rm -f output/key_s_hex.txt
+	-rm -f output/key_s.txt
+	-rm -f output/key_p.txt
+	-rm -f output/output.txt
+	-rm -f hostside/output.txt

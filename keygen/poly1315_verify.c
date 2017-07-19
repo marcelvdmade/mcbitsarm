@@ -1,6 +1,6 @@
 #include "poly1315_auth.h"
 
-int crypto_verify(const unsigned char *x,const unsigned char *y)
+int poly1315_verify(const unsigned char *x,const unsigned char *y)
 {
   unsigned int differentbits = 0;
 #define F(i) differentbits |= x[i] ^ y[i];
@@ -23,11 +23,11 @@ int crypto_verify(const unsigned char *x,const unsigned char *y)
   return (1 & ((differentbits - 1) >> 8)) - 1;
 }
 
-int crypto_onetimeauth_verify(const unsigned char *h,const unsigned char *in,unsigned long long inlen,const unsigned char *k)
+int poly1315_auth_verify(const unsigned char *h,const unsigned char *in,unsigned long long inlen,const unsigned char *k)
 {
   unsigned char correct[16];
-  crypto_onetimeauth(correct,in,inlen,k);//TODO get this func from Supercop
-  return crypto_verify(h,correct);
+  poly1315_auth(correct,in,inlen,k);//TODO get this func from Supercop
+  return poly1315_verify(h,correct);
 }
 
 

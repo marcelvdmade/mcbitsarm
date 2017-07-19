@@ -46,7 +46,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 #define ROL32(a, offset) ((((UINT32)a) << (offset)) ^ (((UINT32)a) >> (32-(offset))))
 
 //THE MAIN FUNCTION to hash
-int crypto_hash( unsigned char *out, const unsigned char *in, unsigned long long inlen )
+int keccack_1024_hash( unsigned char *out, const unsigned char *in, unsigned long long inlen )
 {
     UINT32 state[5 * 5 * 2];
 #if (crypto_hash_BYTES >= cKeccakR_SizeInBytes)

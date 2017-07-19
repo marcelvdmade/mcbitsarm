@@ -3,18 +3,18 @@
 #include "salsa.h"
 #include "poly1305_auth.h"
 #include "poly1305_verify.h"
-
+#include "api.h"
 #include "sk_gen.h"
 #include "pk_gen.h"
+#include "cyclecount.h"
 
 #include "params.h"
 #include "encrypt.h"
 #include "decrypt.h"
 
-/**
-The main encryption function
-**/
-int crypto_encrypt(
+
+//The main encryption function
+int mcBits_encrypt(
        unsigned char *c,unsigned long long *clen,
        const unsigned char *m,unsigned long long mlen,
        const unsigned char *pk
@@ -31,9 +31,9 @@ int crypto_encrypt(
 
 	encrypt(c, e, pk);
 
-	crypto_hash(key, e, sizeof(e));
-	crypto_stream_xor(ct, m, mlen, nonce, key);
-	crypto_onetimeauth(tag, ct, mlen, key + 32);
+	keccack_1024_hash(key, e, sizeof(e));
+	salsa20_xor(ct, m, mlen, nonce, key);
+	poly1315_auth(tag, ct, mlen, key + 32);
 
 	*clen = SYND_BYTES + mlen + 16;
 
@@ -43,10 +43,9 @@ int crypto_encrypt(
 	return 0;
 }
 
-/**
-The main decryption function
-**/
-int crypto_encrypt_open(
+
+//The main decryption function
+int mcBits_decrypt(
        unsigned char *m,unsigned long long *mlen,
        const unsigned char *c,unsigned long long clen,
        const unsigned char *sk
@@ -55,6 +54,7 @@ int crypto_encrypt_open(
 	int ret;
 	int ret_verify;
 	int ret_decrypt;
+	unsigned int oldcount;
 
 	unsigned char key[64];
 	unsigned char nonce[8] = {0};
@@ -68,12 +68,25 @@ int crypto_encrypt_open(
 #define	ct (c + SYND_BYTES)
 #define	tag (ct + *mlen)
 
-	ret_decrypt = decrypt(e, sk, c);
+	//measure decrypt
+    oldcount = setup_clock_measurement();
+    ret_decrypt = decrypt(e, sk, c);
+    send_clock_measurement(oldcount, "decrypt:     ");
+	
+    //measure keccack
+    oldcount = setup_clock_measurement();
+	keccack_1024_hash(key, e, sizeof(e));
+	send_clock_measurement(oldcount, "keccack_1024: ");
 
-	crypto_hash(key, e, sizeof(e));
+    //measure poly1315
+     oldcount = setup_clock_measurement();
+	ret_verify = poly1315_auth_verify(tag, ct, *mlen, key + 32);
+	send_clock_measurement(oldcount, "poly1315:     ");
 
-	ret_verify = crypto_onetimeauth_verify(tag, ct, *mlen, key + 32);
-	crypto_stream_xor(m, ct, *mlen, nonce, key);
+    //measure salsa20_xor
+    oldcount = setup_clock_measurement();
+	salsa20_xor(m, ct, *mlen, nonce, key);
+	send_clock_measurement(oldcount, "salsa20_xor:  ");
 
 	ret = ret_verify | ret_decrypt;
 
@@ -83,10 +96,9 @@ int crypto_encrypt_open(
 	return ret;
 }
 
-/**
-Generate key pair
-**/
-int crypto_encrypt_keypair
+
+//Generate key pair
+int mcBits_generate_keypair
 (
        unsigned char *pk,
        unsigned char *sk

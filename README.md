@@ -4,17 +4,12 @@ A master thesis project from Marcel
 
 ### File structure
 
-*hostside/ contains Python scripts to communicate with the board.
-
+*hostside/ contains Python scripts to communicate with the board
 *inc/ contains the header and data files of MCBits
-
-*lib/ contains the Cortex M4 libraries
-
 *libopencm3/ contains firmware libraries
-
-*src/ contains the source files of MCBits and the makefile
-
-*keygen/ contains a project and its own Makefile, to generate and write a keypair to a file
+*src/ contains the source files of McBits
+*keygen/ contains a project to generate and output a keypair
+*output/ contains the original message which is encrypted, and is used to store generated data, e.g. speeds and generated keys
 
 ### Installation
 
@@ -22,11 +17,14 @@ This code assumes you have the [arm-none-eabi toolchain](https://launchpad.net/g
 
 This project relies on the [libopencm3](https://github.com/libopencm3/libopencm3/) firmware. This is included as a submodule. Compile it by calling make libcm3 in the src folder, before attempting to compile any of the other targets.
 
-Binaries can be compiled by calling e.g. `make mcBits.bin`. Binaries can then be flashed onto the boards using [stlink](https://github.com/texane/stlink), as follows: `st-flash write mcBits.bin 0x8000000`.
+Binaries can be compiled by calling e.g. `make mcBits.bin` in the src/ folder. Binaries can then be flashed onto the boards using [stlink](https://github.com/texane/stlink), as follows: `st-flash write mcBits.bin 0x8000000`.
 
 The host-side Python code requires the [pyserial](https://github.com/pyserial/pyserial) module. Your package repository might offer `python-serial` or `python-pyserial` directly (as of writing, this is the case for Ubuntu, Debian and Arch). Alternatively, this can be easily installed from PyPA by calling `pip install pyserial` (or `pip3`, depending on your system). If you do not have `pip` installed yet, you can typically find it as `python3-pip` using your package manager.
 
-You can use make keygen to generate the keygen executable in the keygen subdirectory. make mcBits to build the project, or in the src/ folder, run make mcBits.bin. First run keygen executable to generate two files with the key in them. Then you can use the host-side script to send the keys directly to the device.
+### Run
+You can call make in the root directory to build all projects. This builds the keygen, and the McBits.bin. Load McBits.bin on the board, and execute hostside.py > output.txt to receive the decrypted message. When asked, press the reset button to start the program. Then you can use the compare script to check whether the output corresponds with the original message.
+
+This entire process can also be done with the test.sh script in the root folder. At the moment root access is needed for the hostside scripts, and thus also for the test script.
 
 ### Troubleshooting
 

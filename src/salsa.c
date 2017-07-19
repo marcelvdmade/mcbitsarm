@@ -37,7 +37,7 @@ void store_littleendian(unsigned char *x,uint32 u)
   x[3] = u;
 }
 
-int crypto_stream_xor(
+int salsa20_xor(
         unsigned char *c,
   const unsigned char *m,unsigned long long mlen,
   const unsigned char *n,
@@ -57,7 +57,7 @@ int crypto_stream_xor(
   for (i = 8;i < 16;++i) in[i] = 0;
 
   while (mlen >= 64) {
-    crypto_core_salsa20(block,in,kcopy,sigma);
+    salsa20(block,in,kcopy,sigma);
     for (i = 0;i < 64;++i) c[i] = m[i] ^ block[i];
 
     u = 1;
@@ -73,7 +73,7 @@ int crypto_stream_xor(
   }
 
   if (mlen) {
-    crypto_core_salsa20(block,in,kcopy,sigma);
+    salsa20(block,in,kcopy,sigma);
     for (i = 0;i < mlen;++i) c[i] = m[i] ^ block[i];
   }
   return 0;
@@ -98,7 +98,7 @@ int crypto_stream(
   for (i = 8;i < 16;++i) in[i] = 0;
 
   while (clen >= 64) {
-    crypto_core_salsa20(c,in,kcopy,sigma);
+    salsa20(c,in,kcopy,sigma);
 
     u = 1;
     for (i = 8;i < 16;++i) {
@@ -112,13 +112,13 @@ int crypto_stream(
   }
 
   if (clen) {
-    crypto_core_salsa20(block,in,kcopy,sigma);
+    salsa20(block,in,kcopy,sigma);
     for (i = 0;i < clen;++i) c[i] = block[i];
   }
   return 0;
 }
 
-int crypto_core_salsa20(
+int salsa20(
         unsigned char *out,
   const unsigned char *in,
   const unsigned char *k,

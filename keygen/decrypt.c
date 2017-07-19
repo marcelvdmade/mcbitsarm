@@ -80,7 +80,7 @@ static void preprocess(uint64_t *recv, const unsigned char *s)
 
 //
 
-void acc(uint64_t *c, uint64_t v)
+static void acc(uint64_t *c, uint64_t v)
 {
 	int i;
 
@@ -96,7 +96,7 @@ void acc(uint64_t *c, uint64_t v)
 	}
 }
 
-int weight(uint64_t *v)
+static int weight(uint64_t *v)
 {
 	int i;
 	int w;
@@ -127,7 +127,7 @@ int weight(uint64_t *v)
 
 //
 
-void syndrome_adjust(uint64_t in[][ GFBITS ])
+static void syndrome_adjust(uint64_t in[][ GFBITS ])
 {
 	int i;
 

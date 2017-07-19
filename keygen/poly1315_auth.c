@@ -57,7 +57,7 @@ void mulmod(unsigned int h[17],const unsigned int r[17])
   squeeze(h);
 }
 
-int crypto_onetimeauth(unsigned char *out,const unsigned char *in,unsigned long long inlen,const unsigned char *k)
+int poly1315_auth(unsigned char *out,const unsigned char *in,unsigned long long inlen,const unsigned char *k)
 {
   unsigned int j;
   unsigned int r[17];

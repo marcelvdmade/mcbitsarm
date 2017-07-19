@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-int irr_gen(gf *out, gf *f)
+static int irr_gen(gf *out, gf *f)
 {
 	int i, j, k, c;
 
