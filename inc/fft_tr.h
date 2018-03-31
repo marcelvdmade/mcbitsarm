@@ -2,5 +2,4 @@
 
 #include <stdint.h>
 
-void fft_tr(uint64_t [][GFBITS], uint64_t [][ GFBITS ]);
-
+void fft_tr(uint32_t [][12], uint32_t [][12], uint32_t [][ 12 ], uint32_t [][ 12 ]);

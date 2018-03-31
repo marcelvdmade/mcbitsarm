@@ -8,8 +8,8 @@ print('> Start comparing output..')
 original_message_path = "../output/message.txt"
 mcBits_extracted_output_path = "../output/output.txt"
 mcBits_output_path = "output.txt"
-speed_path = "../output/speed"+time.strftime("%Y%m%d")+".txt"
-message_line = 6
+speed_path = "../output/speed_"+str(time.strftime("%Y-%m-%d_%H-%M"))+".txt"
+message_line = 13
 
 #extract the message
 f=open(mcBits_output_path,"r")
@@ -21,7 +21,7 @@ g.close()
 
 #write speeds
 h=open(speed_path,"w")
-for x in range(0, 5):
+for x in range(0, message_line-1):
 	h.write(lines[x])
 h.close
 

@@ -1,15 +1,16 @@
 ## MCBits on STM32f407
 
-A master thesis project from Marcel
+A master thesis project from Marcel van der Made
 
 ### File structure
 
 *hostside/ contains Python scripts to communicate with the board
-*inc/ contains the header and data files of MCBits
+*inc/ contains the header and data files of the improved McBits for the Cortex M4
+*inc_original/ contains the header and data files of the orginal McBits implementation on https://www.win.tue.nl/~tchou/mcbits/
 *libopencm3/ contains firmware libraries
-*src/ contains the source files of McBits
-*keygen/ contains a project to generate and output a keypair
-*output/ contains the original message which is encrypted, and is used to store generated data, e.g. speeds and generated keys
+*original/ contains the source files of the orginal McBits implementation
+*speed/ contains the source files of the improved McBits implementation with the original multiplication
+*speed_s/ contains the source files of the improved McBits implementation with assembly Karatsuba multiplication
 
 ### Installation
 
@@ -22,9 +23,7 @@ Binaries can be compiled by calling e.g. `make mcBits.bin` in the src/ folder. B
 The host-side Python code requires the [pyserial](https://github.com/pyserial/pyserial) module. Your package repository might offer `python-serial` or `python-pyserial` directly (as of writing, this is the case for Ubuntu, Debian and Arch). Alternatively, this can be easily installed from PyPA by calling `pip install pyserial` (or `pip3`, depending on your system). If you do not have `pip` installed yet, you can typically find it as `python3-pip` using your package manager.
 
 ### Run
-You can call make in the root directory to build all projects. This builds the keygen, and the McBits.bin. Load McBits.bin on the board, and execute hostside.py > output.txt to receive the decrypted message. When asked, press the reset button to start the program. Then you can use the compare script to check whether the output corresponds with the original message.
-
-This entire process can also be done with the test.sh script in the root folder. At the moment root access is needed for the hostside scripts, and thus also for the test script.
+Enter the folder of the implementation you watn to run, and run ./load.sh This builds the program and loads it on the board. In the hostside folder, run ./hostside.py with admin rights to receive data from the discovery board. Press the reset button on the board to restart the program. On decryption failure, the hostside program will print that the decryption failed. If succesful, only the cycle coutnts are printed.
 
 ### Troubleshooting
 

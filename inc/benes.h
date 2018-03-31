@@ -1,4 +1,3 @@
 #include <stdint.h>
 
-void benes_compact(uint64_t *, uint64_t *, int);
-
+void benes_compact(uint32_t *, uint32_t *, uint32_t *, uint32_t *, int );
