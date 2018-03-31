@@ -1,6 +1,6 @@
-## MCBits on STM32f407
+## McBits on STM32f407
 
-A master thesis project from Marcel van der Made
+A master thesis project from Marcel van der Made for the Radboud University
 
 ### File structure
 
