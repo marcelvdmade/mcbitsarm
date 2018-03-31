@@ -18,12 +18,12 @@ This code assumes you have the [arm-none-eabi toolchain](https://launchpad.net/g
 
 This project relies on the [libopencm3](https://github.com/libopencm3/libopencm3/) firmware. This is included as a submodule. Compile it by calling make libcm3 in the src folder, before attempting to compile any of the other targets.
 
-Binaries can be compiled by calling e.g. `make mcBits.bin` in the src/ folder. Binaries can then be flashed onto the boards using [stlink](https://github.com/texane/stlink), as follows: `st-flash write mcBits.bin 0x8000000`.
+Binaries can be compiled by calling e.g. `make mcBits.bin` in the original/ folder. Binaries can then be flashed onto the boards using [stlink](https://github.com/texane/stlink), as follows: `st-flash write mcBits.bin 0x8000000`. These steps are also performed by calling the load script in each implementation folder.
 
 The host-side Python code requires the [pyserial](https://github.com/pyserial/pyserial) module. Your package repository might offer `python-serial` or `python-pyserial` directly (as of writing, this is the case for Ubuntu, Debian and Arch). Alternatively, this can be easily installed from PyPA by calling `pip install pyserial` (or `pip3`, depending on your system). If you do not have `pip` installed yet, you can typically find it as `python3-pip` using your package manager.
 
 ### Run
-Enter the folder of the implementation you watn to run, and run ./load.sh This builds the program and loads it on the board. In the hostside folder, run ./hostside.py with admin rights to receive data from the discovery board. Press the reset button on the board to restart the program. On decryption failure, the hostside program will print that the decryption failed. If succesful, only the cycle coutnts are printed.
+Enter the folder of the implementation you want to run, and run ./load.sh. This builds the program and loads it on the board. In the hostside folder, run ./hostside.py with admin rights to receive data from the discovery board. Press the reset button on the board to restart the program. On decryption failure, the hostside program will print that the decryption failed. If succesful, only the cycle coutnts are printed.
 
 ### Troubleshooting
 
