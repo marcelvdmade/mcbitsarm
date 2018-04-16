@@ -416,7 +416,8 @@ void bm(uint32_t out_high[ GFBITS ], uint32_t out_low[ GFBITS ], uint32_t in_hig
             }
         }
 
-		vec_mul(prod_high, prod_low, C_high, C_low, in_tmp_high, in_tmp_low);
+		vec_mul_s(prod_high, C_high, in_tmp_high);
+		vec_mul_s(prod_low, C_low, in_tmp_low);
 
 		d = vec_reduce(prod_high, prod_low);
 
@@ -426,7 +427,8 @@ void bm(uint32_t out_high[ GFBITS ], uint32_t out_low[ GFBITS ], uint32_t in_hig
 		r = gf_mul(d, b_inv);
         into_vec(r_vec_high, r_vec_low, r);
 
-		vec_mul(C_tmp_high, C_tmp_low, r_vec_high, r_vec_low, B_high, B_low);
+		vec_mul_s(C_tmp_high, r_vec_high, B_high);
+		vec_mul_s(C_tmp_low, r_vec_low, B_low);
 
 		for (i = 0; i < GFBITS; i++)
 		{

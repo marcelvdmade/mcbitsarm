@@ -9,8 +9,7 @@ A master thesis project from Marcel van der Made for the Radboud University
 *inc_original/ contains the header and data files of the orginal McBits implementation on https://www.win.tue.nl/~tchou/mcbits/
 *libopencm3/ contains firmware libraries
 *original/ contains the source files of the orginal McBits implementation
-*speed/ contains the source files of the improved McBits implementation with the original multiplication
-*speed_s/ contains the source files of the improved McBits implementation with assembly Karatsuba multiplication
+*speed/ contains the source files of the improved McBits implementation with assembly Karatsuba multiplication
 
 ### Installation
 

@@ -51,7 +51,7 @@ static void preprocess(uint32_t *recv_high, uint32_t *recv_low, const unsigned c
 
 static void scaling(uint32_t out_high[][GFBITS],uint32_t out_low[][GFBITS], uint32_t inv_high[][GFBITS],uint32_t inv_low[][GFBITS],
                 const unsigned char *sk, uint32_t *recv_high, uint32_t *recv_low)
-{
+{	//using vec_mul_32
 	int i, j;
 	uint32_t sk_int_high[ GFBITS ];
 	uint32_t sk_int_low[ GFBITS ];
@@ -75,15 +75,19 @@ static void scaling(uint32_t out_high[][GFBITS],uint32_t out_low[][GFBITS], uint
 	
 	for (i = 1; i < 64; i++)
 	{
-		vec_mul(inv_high[i], inv_low[i], inv_high[i-1], inv_low[i-1], eval_high[i], eval_low[i]);
+		vec_mul_s(inv_high[i], inv_high[i-1], eval_high[i]);
+		vec_mul_s(inv_low[i], inv_low[i-1], eval_low[i]);
 	}
 
 	vec_inv(tmp_high, tmp_low, inv_high[63], inv_low[63]);
 
 	for (i = 62; i >= 0; i--)
 	{
-		vec_mul(inv_high[i+1], inv_low[i+1], tmp_high, tmp_low, inv_high[i], inv_low[i]);
-		vec_mul(tmp_high, tmp_low, tmp_high, tmp_low, eval_high[i+1], eval_low[i+1]);
+		vec_mul_s(inv_high[i+1], tmp_high, inv_high[i]);
+		vec_mul_s(inv_low[i+1], tmp_low, inv_low[i]);
+
+		vec_mul_s(tmp_high, tmp_high, eval_high[i+1]);
+		vec_mul_s(tmp_low, tmp_low, eval_low[i+1]);
 	}
 	
 	vec_copy(inv_high[0], inv_low[0], tmp_high, tmp_low);
@@ -229,11 +233,9 @@ static int decrypt(unsigned char *e, const unsigned char *sk, const unsigned cha
         scaling_inv(scaled_high, scaled_low, inv_high, inv_low, error_high, error_low);
         fft_tr(s_priv_cmp_high, s_priv_cmp_low, scaled_high, scaled_low);
 
-        //Syndrome adjust
         for (i = GFBITS; i--; )
         	asm("AND %[out], %[in], 0x0FFFFFFF" : [out]"=r" (s_priv_cmp_high[1][i]) : [in]"r" (s_priv_cmp_high[1][i]) );
 
-        //Get t
 		diff_high = 0; diff_low = 0;
 		for (i = 0; i < 2; i++)
 		for (j = GFBITS; j--; )
@@ -320,9 +322,31 @@ int main(void)
 	uint32_t cond_low[ COND_BYTES / 8 ];
 	uint32_t cond_high[ COND_BYTES / 8 ];
 
+//Measure vec_mul speed
+/*
+{
+	uint32_t mulR_h[GFBITS];
+	uint32_t mulR_l[GFBITS];
+
+	uint32_t mulA_h[GFBITS] = {0x88888888,0xC0C0C0C0,0xF000F000,0x10101010,0xFF000000,0xFFFF0000,0x44444444,0x30303030,0x0F000F00,0x00FF0000,0x0000FFFF,0x10101010};
+	uint32_t mulA_l[GFBITS] = {0xFF000000,0xFFFF0000,0x44444444,0x30303030,0x0F000F00,0x00FF0000,0x0000FFFF,0x10101010,0x88888888,0xC0C0C0C0,0xF000F000,0x10101010};
+	uint32_t mulB_h[GFBITS] = {0xFF000000,0xFFFF0000,0x88888888,0xC0C0C0C0,0xF000F000,0x10101010,0x44444444,0x30303030,0x0F000F00,0x00FF0000,0x0000FFFF,0x10101010};
+	uint32_t mulB_l[GFBITS] = {0x88888888,0xC0C0C0C0,0xF000F000,0x10101010,0xFF000000,0xFFFF0000,0x44444444,0x30303030,0x0F000F00,0x00FF0000,0x0000FFFF,0x10101010};
+
+	oldcount = DWT_CYCCNT;
+	vec_mul(mulR_h, mulR_l, mulA_h, mulA_l, mulB_h, mulB_l);
+	newcount = DWT_CYCCNT-oldcount;
+    send_clock_measurement(newcount, "mul_old");
+
+    oldcount = DWT_CYCCNT;
+	vec_mul_s(mulR_h, mulA_h, mulB_h);
+	vec_mul_s(mulR_l, mulA_l, mulB_l);
+	newcount = DWT_CYCCNT-oldcount;
+    send_clock_measurement(newcount, "mul_new");
+}
+*/
+
 	//measure load
-	//736 loops of 39 cycles = 28704
-	//measurement: 57450 (78 cycles per loop)
 	oldcount = DWT_CYCCNT;
 	for (i = 0; i < COND_BYTES / 8; i++)
 	    load8(sk + IRR_BYTES + i*8, cond_high+i, cond_low+i);
@@ -450,21 +474,24 @@ int main(void)
     send_clock_measurement(newcount, "weight");
     
 
-    //Measure decrypt
+    //Measure decrypt total
  #define	ct (c + SYND_BYTES)
  #define	tag (ct + *mlen)
     oldcount = DWT_CYCCNT;
     ret_decrypt = decrypt(e, sk, c);
     newcount = DWT_CYCCNT-oldcount;
-    send_clock_measurement(newcount, "decrypt\n");
+    send_clock_measurement(newcount, "decrypt");
 
  	//Verify decryption
+ 	oldcount = DWT_CYCCNT;
 	keccack_1024_hash(key, e, sizeof(e));
 
 	ret_verify = poly1315_auth_verify(tag, ct, *mlen, key + 32);
 	salsa20_xor(m, ct, *mlen, nonce, key);
 
 	ret = ret_verify | ret_decrypt;
+	newcount = DWT_CYCCNT-oldcount;
+    send_clock_measurement(newcount, "kem verify\n");
 
  #undef ct
  #undef tag
@@ -475,6 +502,7 @@ int main(void)
         sprintf((char*) output, "Decryption failed! Error code: %d", ret);
         send_USART_str(output);
     }
+    
     return 0;
 }
 

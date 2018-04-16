@@ -655,24 +655,29 @@ void vec_inv(uint32_t *out_high, uint32_t *out_low, const uint32_t *in_high, con
 	vec_copy(out_high, out_low, in_high, in_low);
 
 	vec_sq(out_high, out_low, out_high, out_low);
-	vec_mul(tmp_11_high, tmp_11_low, out_high, out_low, in_high, in_low); // 11
+	vec_mul_s(tmp_11_high, out_high, in_high); // 11
+	vec_mul_s(tmp_11_low, out_low, in_low); // 11
 
 	vec_sq(out_high, out_low, tmp_11_high, tmp_11_low);
 	vec_sq(out_high, out_low, out_high, out_low);
-	vec_mul(tmp_1111_high, tmp_1111_low, out_high, out_low, tmp_11_high, tmp_11_low); // 1111
+	vec_mul_s(tmp_1111_high, out_high, tmp_11_high); // 1111
+	vec_mul_s(tmp_1111_low, out_low, tmp_11_low); // 1111
 
 	vec_sq(out_high, out_low, tmp_1111_high, tmp_1111_low);
 	vec_sq(out_high, out_low, out_high, out_low);
 	vec_sq(out_high, out_low, out_high, out_low);
 	vec_sq(out_high, out_low, out_high, out_low);
-	vec_mul(out_high, out_low, out_high, out_low, tmp_1111_high, tmp_1111_low); // 11111111
+	vec_mul_s(out_high, out_high, tmp_1111_high); // 11111111
+	vec_mul_s(out_low, out_low, tmp_1111_low); // 11111111
 
 	vec_sq(out_high, out_low, out_high, out_low);
 	vec_sq(out_high, out_low, out_high, out_low);
-    vec_mul(out_high, out_low, out_high, out_low, tmp_11_high, tmp_11_low); // 1111111111
+    vec_mul_s(out_high, out_high, tmp_11_high); // 1111111111
+    vec_mul_s(out_low, out_low, tmp_11_low); // 1111111111
 
 	vec_sq(out_high, out_low, out_high, out_low);
-	vec_mul(out_high, out_low, out_high, out_low, in_high, in_low); // 11111111111
+	vec_mul_s(out_high, out_high, in_high); // 11111111111
+	vec_mul_s(out_low, out_low, in_low); // 11111111111
 
 	vec_sq(out_high, out_low, out_high, out_low); // 111111111110
 }

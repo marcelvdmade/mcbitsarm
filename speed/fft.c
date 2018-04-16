@@ -67,7 +67,8 @@ static void radix_conversions(uint32_t *in_high, uint32_t *in_low)
 				in_high[i] ^= temp_high;
 				in_low[i] ^= temp_low;
 			}
-		vec_mul(in_high, in_low, in_high, in_low, s_high[j], s_low[j]); //scaling
+		vec_mul_s(in_high, in_high, s_high[j]); //scaling
+		vec_mul_s(in_low, in_low, s_low[j]); //scaling
 	}
 }
 
@@ -117,16 +118,14 @@ static void butterflies(uint32_t out_high[][ GFBITS ], uint32_t out_low[][ GFBIT
 
 	for (i = 0; i <= 5; i++)
 	{
-		//s = 1,2,4,8,16,32
 		s = 1 << i;
 
-		//j loops 64, 32, 16, 8, 4, 2
 		for (j = 0; j < 64; j += 2*s)
 		{
-			//k loops 192 times
 			for (k = j; k < j+s; k++)
 			{
-				vec_mul(tmp_high, tmp_low, out_high[k+s], out_low[k+s], consts_high[ consts_ptr_high + (k-j) ], consts_low[ consts_ptr_low + (k-j) ]);
+				vec_mul_s(tmp_high, out_high[k+s], consts_high[ consts_ptr_high + (k-j) ]);
+				vec_mul_s(tmp_low, out_low[k+s], consts_low[ consts_ptr_low + (k-j) ]);
 
 				for (b = 0; b < GFBITS; b++) asm("EOR %[target], %[r1], %[r2]" : [target]"=r" (out_high[k][b]) : [r1]"r" (out_high[k][b]) , [r2]"r" (tmp_high[b]) );
 				for (b = 0; b < GFBITS; b++) asm("EOR %[target], %[r1], %[r2]" : [target]"=r" (out_low[k][b]) : [r1]"r" (out_low[k][b]) , [r2]"r" (tmp_low[b]) );

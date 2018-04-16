@@ -267,6 +267,7 @@ int main(void)
 	uint64_t cond[ COND_BYTES / 8 ];
 
   //Measure vec_mul
+/*
   {
 	uint64_t mulR[GFBITS];
 	uint64_t mulA[GFBITS];
@@ -281,7 +282,7 @@ int main(void)
 	newcount = DWT_CYCCNT-oldcount;
     send_clock_measurement(newcount, "mul_old");
   }
-
+*/
 	//measure load
 	oldcount = DWT_CYCCNT;
 	for (i = 0; i < COND_BYTES / 8; i++)
@@ -406,16 +407,18 @@ int main(void)
     oldcount = DWT_CYCCNT;
     ret_decrypt = decrypt(e, sk, c);
     newcount = DWT_CYCCNT-oldcount;
-    send_clock_measurement(newcount, "decrypt\n");
+    send_clock_measurement(newcount, "decrypt");
 
  	//Verify decryption
+ 	oldcount = DWT_CYCCNT;
 	keccack_1024_hash(key, e, sizeof(e));
 
 	ret_verify = poly1315_auth_verify(tag, ct, *mlen, key + 32);
 	salsa20_xor(m, ct, *mlen, nonce, key);
 
 	ret = ret_verify | ret_decrypt;
-
+	newcount = DWT_CYCCNT-oldcount;
+    send_clock_measurement(newcount, "kem verify\n");
  #undef ct
  #undef tag
 

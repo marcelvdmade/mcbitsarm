@@ -8,7 +8,7 @@ DEFINES    = -DSTM32F4
 
 OBJS = $(patsubst %.c, %.o, $(wildcard *.c)) 
 
-all: libcm3 speed.bin speed.s
+all: libcm3 speed.bin
 
 ###################################################
 
@@ -51,8 +51,8 @@ libcm3:
 %.bin: %.elf
 	$(OBJCOPY) -Obinary $(*).elf $(*).bin
 
-%.elf: %.o $(OBJS) $(LDSCRIPT)
-	$(LD) -o $(*).elf $(OBJS) $(LDFLAGS) -l$(LIBNAME)
+%.elf: %.o vec_mul.s $(OBJS) $(LDSCRIPT)
+	$(LD) -o $(*).elf vec_mul.s $(OBJS) $(LDFLAGS) -l$(LIBNAME)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -o  $@ -c $<

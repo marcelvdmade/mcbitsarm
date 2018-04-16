@@ -1,13 +1,37 @@
 #include "stm32wrapper.h"
 
+#define FLASH_ACR_DCEN          (1 << 10)
+#define FLASH_ACR_ICEN          (1 << 9)
+#define FLASH_ACR_LATENCY_0WS       0x00
+
+/* 24 MHz */
+const struct rcc_clock_scale benchmarkclock = {
+    .pllm = 8, //VCOin = HSE / PLLM = 1 MHz
+    .plln = 192, //VCOout = VCOin * PLLN = 192 MHz
+    .pllp = 8, //PLLCLK = VCOout / PLLP = 24 MHz (low to have 0WS)
+    .pllq = 4, //PLL48CLK = VCOout / PLLQ = 48 MHz (required for USB, RNG)
+    .hpre = RCC_CFGR_HPRE_DIV_NONE,
+    .ppre1 = RCC_CFGR_PPRE_DIV_2,
+    .ppre2 = RCC_CFGR_PPRE_DIV_NONE,
+    .flash_config = FLASH_ACR_DCEN | FLASH_ACR_ICEN | FLASH_ACR_LATENCY_0WS,
+    .apb1_frequency = 12000000,
+    .apb2_frequency = 24000000,
+};
+
 void clock_setup(void)
 {
     //rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_48MHZ]);
     //rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
-    rcc_osc_on(RCC_HSE);
+    
+    rcc_clock_setup_hse_3v3(&benchmarkclock); // 24 MHz
+
+    /* 8 MHz */
+    //rcc_osc_on(RCC_HSE); 
+
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_USART2);
     rcc_periph_clock_enable(RCC_DMA1);
+
 }
 
 void gpio_setup(void)

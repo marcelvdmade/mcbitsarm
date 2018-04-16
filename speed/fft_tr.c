@@ -55,8 +55,11 @@ static void radix_conversions_tr(uint32_t in_high[][ GFBITS ], uint32_t in_low[]
 	{
 		if (j < 5)
 		{
-			vec_mul(in_high[0], in_low[0], in_high[0], in_low[0], s_high[j][0], s_low[j][0]); // scaling
-			vec_mul(in_high[1], in_low[1], in_high[1], in_low[1], s_high[j][1], s_low[j][1]); // scaling
+			vec_mul_s(in_high[0], in_high[0], s_high[j][0]); // scaling
+			vec_mul_s(in_low[0], in_low[0], s_low[j][0]); // scaling
+
+			vec_mul_s(in_high[1], in_high[1], s_high[j][1]); // scaling
+			vec_mul_s(in_low[1], in_low[1], s_low[j][1]); // scaling
 		}
 
 		for (i = 0; i < GFBITS; i++)
@@ -163,7 +166,8 @@ static void butterflies_tr(uint32_t out_high[][ GFBITS ], uint32_t out_low[][ GF
 		for (k = j; k < j+s; k++)
 		{
 			vec_add(in_high[k], in_low[k], in_high[k], in_low[k], in_high[k+s], in_low[k+s]);
-			vec_mul(tmp_high, tmp_low, in_high[k], in_low[k], consts_high[ consts_ptr_high + (k-j) ], consts_low[ consts_ptr_low + (k-j) ]);
+			vec_mul_s(tmp_high, in_high[k], consts_high[ consts_ptr_high + (k-j) ]);
+			vec_mul_s(tmp_low, in_low[k], consts_low[ consts_ptr_low + (k-j) ]);
 			vec_add(in_high[k+s], in_low[k+s], in_high[k+s], in_low[k+s], tmp_high, tmp_low);
 		}
 	}
@@ -280,7 +284,8 @@ static void butterflies_tr(uint32_t out_high[][ GFBITS ], uint32_t out_low[][ GF
         tmp_low[j] = -tmp_low[j];
     }
 
-	vec_mul(out_high[1], out_low[1], pre_high[0], pre_low[0], tmp_high, tmp_low);
+	vec_mul_s(out_high[1], pre_high[0], tmp_high);
+	vec_mul_s(out_low[1], pre_low[0], tmp_low);
 
 	for (i = 1; i < 6; i++)
 	{
@@ -290,7 +295,8 @@ static void butterflies_tr(uint32_t out_high[][ GFBITS ], uint32_t out_low[][ GF
             tmp_low[j] = (beta[i] >> j) & 1; tmp_low[j] = -tmp_low[j];
         }
 
-		vec_mul(tmp_high, tmp_low, pre_high[i], pre_low[i], tmp_high, tmp_low);
+		vec_mul_s(tmp_high, pre_high[i], tmp_high);
+		vec_mul_s(tmp_low, pre_low[i], tmp_low);
 		vec_add(out_high[1], out_low[1], out_high[1], out_low[1], tmp_high, tmp_low);
 	}
 }
